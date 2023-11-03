@@ -1,23 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import "./App.css";
+import Sidebar from "./components/Sidebar";
+import Area from "./components/Area";
 
 function App() {
+  const [group, setGroup] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  const handleCreateGroup = (newGroup) => {
+    const updatedGroups = [...group, newGroup];
+    localStorage.setItem("groups", JSON.stringify(updatedGroups));
+    setGroup(updatedGroups);
+    console.log(updatedGroups);
+    console.log("groups", group);
+  };
+  useEffect(() => {
+    const savedGroups = JSON.parse(localStorage.getItem("groups"));
+    if (savedGroups) {
+      setGroup(savedGroups);
+      console.log("savedgroups", savedGroups);
+    }
+  }, []);
+
+  const handleGroupClick = (clickedGroup) => {
+    setSelectedGroup(clickedGroup);
+    setIsMobileView(true);
+
+    console.log("selected", selectedGroup);
+  };
+  const handleBack = () => {
+    setIsMobileView(false);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="notes-app">
+      {isMobileView ? (
+        <>
+          <Sidebar
+            group={group}
+            onGroupClick={handleGroupClick}
+            onCreateGroup={handleCreateGroup}
+          />
+          <Area groupItem={selectedGroup} />
+        </>
+      ) : (
+        <>
+          {!isMobileView && (
+            <Sidebar
+              group={group}
+              onGroupClick={handleGroupClick}
+              onCreateGroup={handleCreateGroup}
+            />
+          )}
+          {isMobileView && (
+            <Area groupItem={selectedGroup} handleBack={handleBack} />
+          )}
+        </>
+      )}
     </div>
   );
 }
